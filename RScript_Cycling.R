@@ -67,18 +67,16 @@ Cycling<-Cycling %>%
          "Flash_lights"="how did you respond?/Flash car Lights",
          "Nothing"="how did you respond?/Nothing",
          "From_motorized_to_cycling"=". Name one factor that would make you change from motorized means of transportation to cycling on a daily basis:",
-         "Suggestion"="Any suggestions for improving cycling in Nairobi"  ) %>%
+         "Suggestion"="Any suggestions for improving cycling in Nairobi"  ) 
   
   
   
-  
-  
-  
+  ##(Cycling)
+
+##deleting spaces with NAN>50%
+Cycling1<-Cycling[,!sapply(Cycling, function(x)mean(is.na(x)))>0.5]
 
 
-
-
-
-
-#names(Cycling)
-
+#deleting columns
+Cycling1<-subset(Cycling1, select = -c(Are_you,Reason_cycling,frequently_cycle,Respond))
+Cycling1
