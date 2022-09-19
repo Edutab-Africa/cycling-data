@@ -7,7 +7,10 @@ suppressPackageStartupMessages(library("rstudioapi"))
 suppressPackageStartupMessages(library(openxlsx))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(dplyr))
-
+suppressPackageStartupMessages(library(lattice))
+suppressPackageStartupMessages(library(formattable))
+suppressPackageStartupMessages(library(latticeExtra))
+suppressPackageStartupMessages(library(barplot3d))
 
 setwd(dirname(getActiveDocumentContext()$path))
 
@@ -68,15 +71,190 @@ Cycling<-Cycling %>%
          "Nothing"="how did you respond?/Nothing",
          "From_motorized_to_cycling"=". Name one factor that would make you change from motorized means of transportation to cycling on a daily basis:",
          "Suggestion"="Any suggestions for improving cycling in Nairobi"  ) 
-  
-  
-  
-  ##(Cycling)
 
-##deleting spaces with NAN>50%
-Cycling1<-Cycling[,!sapply(Cycling, function(x)mean(is.na(x)))>0.5]
+Demographic_Gender_Age <- Cycling %>%
+  select(Gender,Age,Disability,motorist,motorcyclist,Cyclist,Pedestrian,Other ) %>%
+  pivot_longer (!c(Gender, Age,Disability), names_to = "Are_you_a", values_to = "Responses")%>%
+  filter(Responses != "0")%>%
+  group_by(Age) %>%
+  summarise(cnt = n()) %>%
+  mutate(freq = round(cnt / sum(415), 3)) %>% 
+  arrange(desc(freq))
+ggplot(Demographic_Gender_Age,aes(x = Age,
+                                  y = freq,
+                                  fill = Age,
+                                  label=scales::percent(freq))) +
+  geom_bar(position="dodge",stat="identity",width = 0.3) +
+  scale_fill_manual(values = c("lightsalmon2","darkturquoise")) +
+  facet_wrap(~Age)+
+  scale_y_continuous(labels = scales::percent,
+                     breaks = scales::pretty_breaks(n = 8))+
+  geom_text(nudge_y= .01,
+            color="black",
+            size = 4,
+            fontface="bold")+
+  labs(x = "Age and gender",
+       title = "Percentage of respondents by age and gender")+
+  theme(legend.position = "none",
+        panel.spacing = unit(2, "lines"),
+        strip.text.x = element_text(size = 20),
+        axis.text.x = element_text(color = "black", size = 12,angle = 0,face = "bold"),
+        axis.text.y = element_text(color="black", size = 15, angle = 0,face = "bold"),
+        axis.title.x = element_text(colour="black", size = 15,face = "bold"),
+        axis.title.y = element_text(colour="black", size = 15,face = "bold",hjust = 0.5),
+        legend.title = element_text(color = "black", size = 15,face = "bold"),
+        legend.text = element_text(color = "black", size = 15,face = "bold"),
+        plot.title = element_text(face = "bold",hjust = 0.5))
+  print(Demographic_Gender_Age)
+  ggsave("Number of road users when grouped by gender and age.png")
 
 
-#deleting columns
-Cycling1<-subset(Cycling1, select = -c(Are_you,Reason_cycling,frequently_cycle,Respond))
-Cycling1
+
+ Demographic_Gender<- Cycling %>%
+  select(Gender,motorist,motorcyclist,Cyclist,Pedestrian,Other ) %>%
+   pivot_longer (!c(Gender), names_to = "Are_you_a", values_to = "Responses")%>%
+   filter(Gender != "Prefer not to say")%>%
+   filter(Responses != "0")%>%
+   group_by(Are_you_a,Gender) 
+   
+   
+   ggplot(Demographic_Gender,aes(x=Are_you_a, fill=Are_you_a))+
+   geom_bar(position="dodge",width = 0.6) +
+     scale_fill_manual(values = c("mediumseagreen","chartreuse2","chocolate2",
+                                  "antiquewhite2","darkgoldenrod2"))+
+   facet_wrap(~Gender)+
+   labs(x = "Road users",
+        title = "Number of road users when grouped by gender")+
+     scale_y_continuous(breaks=seq(0,400,50)) +
+   theme(legend.position = "none",
+         panel.spacing = unit(2, "lines"),
+         strip.text.x = element_text(size = 30),
+         axis.text.x = element_text(color = "black", size = 12,angle = 0,face = "bold"),
+         axis.text.y = element_text(color="black", size = 15, angle = 0,face = "bold"),
+         axis.title.x = element_text(colour="black", size = 15,face = "bold"),
+         axis.title.y = element_text(colour="black", size = 15,face = "bold",hjust = 0.5),
+         legend.title = element_text(color = "black", size = 15,face = "bold"),
+         legend.text = element_text(color = "black", size = 15,face = "bold"),
+         plot.title = element_text(face = "bold",hjust = 0.5))
+   print(Demographic_Gender)
+   ggsave("Number of road users when grouped by gender.png")
+   
+   
+   # ggplot(s, aes(y = mean_p, x = Gender, fill = Gender)) +
+   #   geom_bar(position="dodge", stat="identity",width = 0.3) +
+   #   scale_fill_manual(values = c("lightsalmon2","darkturquoise")) +
+   #   facet_wrap(~Assessment) +
+   #   labs(y = "Mean percentage",
+   #        x = "Gender",
+   #        title = "Level 1 Assessment: Mean percentage by Gender") +
+   #   scale_y_continuous(breaks=seq(0,70,10)) +
+   #   geom_text(mapping = aes(Gender,mean_p, label = paste0("% = ",mean_p)),vjust=-1,
+   #             hjust=.5,
+   #             size=4)+
+   #   theme(axis.text.x = element_text(color = "black", size = 15,angle = 0),
+   #         axis.text.y = element_text(color="black", size = 15, angle = 0),
+   #         axis.title.x = element_text(colour="black", size = 15),
+   #         axis.title.y = element_text(colour="black", size = 15,hjust = 0.5),
+   #         legend.title = element_text(color = "black", size = 15),
+   #         legend.text = element_text(color = "black", size = 15),
+   #         plot.title = element_text(face = "bold",hjust = 0.5),
+   #         legend.position = "none",
+   #         strip.text.x = element_text(
+   #           size = 12,face = "bold")) 
+   
+   Demographic_Age <- Cycling %>%
+     select(Age,motorist,motorcyclist,Cyclist,Pedestrian,Other ) %>%
+     pivot_longer (!c(Age), names_to = "Are_you_a", values_to = "Responses")%>%
+     filter(Responses != "0")
+   
+   ggplot(Demographic_Age,aes(x=Are_you_a, fill=Are_you_a))+
+     geom_bar(position="dodge",width = 0.6) +
+     scale_fill_manual(values = c("mediumseagreen","chartreuse2","chocolate2",
+                                  "antiquewhite2","darkgoldenrod2"))+
+     facet_wrap(~Age)+
+     labs(x = "Road users",
+          title = "Number of road users when grouped by Age")+
+     scale_y_continuous(breaks=seq(0,400,50)) +
+     theme(legend.position = "none",
+           strip.text.x = element_text(size = 30),
+           panel.spacing = unit(2, "lines"),
+           axis.text.x = element_text(color = "black", size = 7,angle = 0,face = "bold"),
+           axis.text.y = element_text(color="black", size = 15, angle = 0,face = "bold"),
+           axis.title.x = element_text(colour="black", size = 15,face = "bold"),
+           axis.title.y = element_text(colour="black", size = 15,face = "bold",hjust = 0.5),
+           legend.title = element_text(color = "black", size = 15,face = "bold"),
+           legend.text = element_text(color = "black", size = 15,face = "bold"),
+           plot.title = element_text(face = "bold",hjust = 0.5))
+   print(Demographic_Age)
+   ggsave("Number of road users when grouped by age.png")
+ 
+  
+ #   group_by(Gender) %>%
+ #   summarise(n=n())%>%
+ #   mutate(Perc = round(n / sum(n), 3)) %>% 
+ #   arrange(desc(Perc))
+ #   
+ #   as.data.frame(Demographic)
+ # write.csv(Demographic, "Gender.csv")
+ # 
+   
+   
+ 
+ 
+ #summarise(n = mean(percent_rank(Cyclist)), n = n())
+   #summarise(n=n())
+ #summarise(Total = n())%>%
+   
+
+names(Cycling)
+Road_user<- Cycling%>%
+  select(Gender,Age,Disability,Are_you)%>%
+  group_by(Are_you)%>%
+  summarise(n=n())
+as.data.frame(Road_user)
+write.csv(Road_user, "Road_users1.csv")
+
+  
+
+####### Time of cycling 
+   Time<-Cycling%>%
+     select(Gender,Age,Disability,frequently_cycle,average_time_cycle)%>%
+     group_by(Gender,frequently_cycle)%>%
+     filter(frequently_cycle != "NA")%>%
+     summarise(count=n())
+   ggplot(Time,aes(x=frequently_cycle,y=count, fill=frequently_cycle))+
+     geom_bar(position="dodge",stat="identity",width = 0.6) +
+     scale_fill_manual(values = c("mediumseagreen","chartreuse2","chocolate2",
+                                  "darkgoldenrod2"))+
+     facet_wrap(~Gender)+
+     labs(x = "frequently_cycle",
+          title = "How frequently the respondents cycle in a week")+
+     scale_y_continuous(breaks=seq(0,400,50)) +
+     theme(legend.position = "none",
+           strip.text.x = element_text(size = 30),
+           panel.spacing = unit(2, "lines"),
+           axis.text.x = element_text(color = "black", size = 7,angle = 0,face = "bold",hjust = 0.5),
+           axis.text.y = element_text(color="black", size = 15, angle = 0,face = "bold"),
+           axis.title.x = element_text(colour="black", size = 15,face = "bold"),
+           axis.title.y = element_text(colour="black", size = 15,face = "bold",hjust = 0.5),
+           legend.title = element_text(color = "black", size = 15,face = "bold"),
+           legend.text = element_text(color = "black", size = 15,face = "bold"),
+           plot.title = element_text(face = "bold",hjust = 0.5))
+   print(Demographic_Age)
+   ggsave("frequently_cycle.png")
+   
+   
+   
+   
+   
+   
+   
+   as.data.frame(Time)
+   write.csv(Time, "Time.csv")
+     
+     
+     
+   
+   
+  
+
