@@ -1,0 +1,11 @@
+"","Are_you_a","Gender","n","Perc"
+"1","Cyclist","Female",56,0.172
+"2","Cyclist","Male",269,0.828
+"3","motorcyclist","Female",4,0.133
+"4","motorcyclist","Male",26,0.867
+"5","motorist","Female",49,0.283
+"6","motorist","Male",124,0.717
+"7","Other","Female",1,0.25
+"8","Other","Male",3,0.75
+"9","Pedestrian","Female",41,0.311
+"10","Pedestrian","Male",91,0.689

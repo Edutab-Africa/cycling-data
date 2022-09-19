@@ -1,0 +1,18 @@
+"","Are_you","n"
+"1","Cyclist",182
+"2","Cyclist Pedestrian",24
+"3","Motorcyclist",2
+"4","Motorcyclist Cyclist",9
+"5","Motorcyclist Cyclist Pedestrian",2
+"6","Motorist",46
+"7","Motorist Cyclist",34
+"8","Motorist Cyclist Pedestrian",60
+"9","Motorist Cyclist Pedestrian Other",2
+"10","Motorist Motorcyclist",2
+"11","Motorist Motorcyclist Cyclist",7
+"12","Motorist Motorcyclist Cyclist Pedestrian",7
+"13","Motorist Motorcyclist Pedestrian",1
+"14","Motorist Pedestrian",14
+"15","Other",1
+"16","Pedestrian",21
+"17","Pedestrian Other",1
